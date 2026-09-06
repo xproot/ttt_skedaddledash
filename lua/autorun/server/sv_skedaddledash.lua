@@ -87,6 +87,7 @@ local function ClearSkedaddledashState(ply)
     if IsValid(ply) then
         ply:SetNWBool("HasSkedaddledash", false)
         ply:SetNWFloat("SkedaddledashNextUse", 0)
+		ply:SetNWInt("SkedaddledashUsesRemaining", 0)
         ply:SetNWBool("SkedaddledashIsCasting", false)
         ply:SetNWBool("SkedaddledashIsLanding", false)
 		
@@ -543,7 +544,7 @@ local function CleansePlayer(ply, originalPos)
 		timer.Destroy("TTTPAPRandomGravNade" .. ply:SteamID64())
 		ply:SetGravity(1)
 	end
-    
+	
     --Player Trapper (There's a lot I don't understand, since I got a lot of help from AI, especially on this next bit. I think it uses voodoo)
     if ply.PAPPlayerTrapperTrapped then
         ply.PAPCleansing = true
@@ -837,6 +838,15 @@ local function ApplyLandingPhase(ply, targetPos)
             ply:SetPos(targetPos)
             ply:SetNWBool("SkedaddledashIsLanding", false)
             ply:SetNWFloat("SkedaddledashLandStart", 0)
+			
+			usesRemaining = ply:GetNWInt("SkedaddledashUsesRemaining", 0) 
+			if usesRemaining > 0 then
+				usesRemaining = usesRemaining - 1
+				if usesRemaining < 1 then
+					ClearSkedaddledashState(ply)
+				end
+				ply:SetNWInt("SkedaddledashUsesRemaining", usesRemaining)
+			end
             hook.Remove("Think", hookName)
         end
     end)
@@ -853,7 +863,7 @@ local function DropAndSpinItems(ply)
     for _, wep in ipairs(ply:GetWeapons()) do
         if IsValid(wep) and wep.AllowDrop ~= false then
             local class = wep:GetClass()
-            
+
             ply:StripWeapon(class)
 
             local dropped = ents.Create(class)
@@ -913,20 +923,6 @@ local function ExecuteSkedaddledash(ply)
     DropAndSpinItems(ply)
 	
 	CleansePlayer(ply, trueOriginPos)
-	
-	if TTT2 then
-		for _, wep in ipairs(ply:GetWeapons()) do
-			if IsValid(wep) then
-				-- Optional: check if weapon should be stripped (e.g. keep holstered base hands)
-				if wep:GetClass() ~= "weapon_ttt_unarmed" then
-					ply:StripWeapon(wep:GetClass())
-				end
-			end
-		end
-	else
-		ply:StripWeapons()
-	end
-    ply:StripAmmo()
 
     ply:Give("weapon_ttt_unarmed")
     ply:SetVelocity(-ply:GetVelocity())
