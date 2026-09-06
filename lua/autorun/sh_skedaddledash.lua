@@ -3,6 +3,7 @@ if SERVER then
 	AddCSLuaFile()
 end
 
+CreateConVar("ttt_skedaddledash_uses", "0", bit.bor(FCVAR_REPLICATED, FCVAR_ARCHIVE), "Amount of times Skedaddledash ability can be used. Zero makes it infinite.", 0, 10)
 CreateConVar("ttt_skedaddledash_cooldown", "90", bit.bor(FCVAR_REPLICATED, FCVAR_ARCHIVE), "Cooldown duration in seconds for Skedaddledash ability.", 10, 300)
 CreateConVar("ttt_skedaddledash_traitor", 1, bit.bor(FCVAR_REPLICATED, FCVAR_ARCHIVE), "If traitors can buy the skedaddledash", 0, 1)
 CreateConVar("ttt_skedaddledash_detective", 1, bit.bor(FCVAR_REPLICATED, FCVAR_ARCHIVE), "If detectives can buy the skedaddledash", 0, 1)
